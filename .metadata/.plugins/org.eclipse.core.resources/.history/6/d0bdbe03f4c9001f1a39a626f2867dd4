@@ -1,0 +1,5 @@
+package com.api.cliente;
+
+public record DadosCadastroCliente(String nome,String telefone, String endereco, String servico) {
+
+}
