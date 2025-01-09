@@ -102,6 +102,7 @@ function fetchRegistros() {
                         <td>${formatDate(registro.data_pedido)}</td>
                         <td>${formatDate(registro.data_entrega)}</td>
                         <td>${parseFloat(registro.valor).toFixed(2)}</td>
+                        <td><i class="fa-solid fa-file-pdf" id= "donwloadPdf" onclick= "downloadPdf(${registro.id})"></i></td>
                 `;
                 
                 tabela.appendChild(linha);
@@ -250,6 +251,7 @@ function editar(id, nome, telefone, endereco, servico, status, data_pedido, data
         <td><input type="date" id="data_pedido-${id}" value="${data_pedido}"></td>
         <td><input type="date" id="data_entrega-${id}" value="${data_entrega}"></td>
         <td><input type="number" id="valor-${id}" value="${valor}" step="0.01"></td>
+        
     `;
 }
 
@@ -280,6 +282,7 @@ function cancelarEdicao(id) {
         <td>${data_pedido}</td>
         <td>${data_entrega}</td>
         <td>${valor}</td>
+        <td><i class="fa-solid fa-file-pdf"></i></td>
     `;
 }
 
@@ -358,7 +361,37 @@ document.getElementById('searchInput').addEventListener('input', function () {
            });
        });
 
-    
+       function downloadPdf(id) {
+    const endpoint = `http://localhost:8080/pdf/${id}`;
+
+    fetch(endpoint, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/pdf'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro ao gerar PDF: ${response.statusText}`);
+        }
+        return response.blob(); // Converte a resposta para Blob
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob); // Cria uma URL temporária para o Blob
+        const a = document.createElement('a'); // Cria um link para download
+        a.href = url;
+        a.download = `documento_${id}.pdf`; // Nome do arquivo para download
+        document.body.appendChild(a); // Adiciona o link ao DOM
+        a.click(); // Simula o clique no link
+        document.body.removeChild(a); // Remove o link do DOM
+        window.URL.revokeObjectURL(url); // Revoga a URL temporária
+    })
+    .catch(error => {
+        console.error('Erro ao processar o PDF:', error);
+        alert('Não foi possível gerar o PDF. Tente novamente mais tarde.');
+    });
+}
+
 
     </script>
     
