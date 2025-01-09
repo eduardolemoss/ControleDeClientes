@@ -8,5 +8,5 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
 	List<Cliente> findBynomeContaining(String search);
 	List<Cliente> findBystatusContaining(String status);
 	
-
+	public List<Cliente> findAll();
 }
