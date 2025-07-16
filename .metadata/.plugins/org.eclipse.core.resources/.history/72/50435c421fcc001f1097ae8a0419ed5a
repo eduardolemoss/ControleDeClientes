@@ -1,0 +1,4 @@
+spring.application.name=ady
+spring.datasource.url=jdbc:mysql://192.168.1.14/ady
+spring.datasource.username=root
+spring.datasource.password=root

@@ -1,0 +1,5 @@
+package com.api.cliente;
+
+public record dadosListagemCliente() {
+
+}

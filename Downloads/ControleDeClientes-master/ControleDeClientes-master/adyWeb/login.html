@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+  <link rel="stylesheet" href="login.css"> 
+</head>
+<body>
+  <div class="container">
+    <div class="login-box">
+      <div class="foto-box">
+        <img id="foto-perfil" src="Captura de tela 2025-06-13 170249.png" alt="Foto de perfil">
+      </div>
+
+      <h2>Login</h2>
+      <form id="loginForm">
+        <input type="text" id="login" placeholder="Usuário" required><br>
+        <input type="password" id="senha" placeholder="Senha" required><br>
+        <button type="submit">Entrar</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const data = {
+        login: document.getElementById("login").value,
+        senha: document.getElementById("senha").value
+      };
+
+      fetch("http://localhost:8080/auth", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      })
+      .then(async response => {
+        if (!response.ok) throw new Error("Login inválido");
+
+        const json = await response.json();
+        localStorage.setItem("token", json.token);
+        // Redireciona para a página inicial
+        window.location.href = "Cliente.html";
+      })
+      .catch(error => {
+        alert("Erro: " + error.message);
+      });
+    });
+  </script>
+</body>
+</html>

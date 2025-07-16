@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biblioteca</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://kit.fontawesome.com/0008a4338f.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/notyf@3.4.0/notyf.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/notyf@3.4.0/notyf.min.css" rel="stylesheet">
+
+
+
+    
+    </head>
+    <body>
+        
+        <header>
+            <nav>
+                <a style="font-size: 33px;">ADY VIDROS</a>
+                <div class="mobile-menu">
+                    <div class="line1"></div>
+                    <div class="line2"></div>
+                    <div class="line3"></div>
+  
+                </div>
+                
+                
+            </nav>
+            
+            
+        </header>
+        <main><h1>Clientes</h1>
+            <a href="InserirRegistro.html"><button class="Salvar">
+                Inserir <i class="fa-solid fa-plus"></i></button></a>
+        
+            <input class="input-busca" id="searchInput"
+            type="text" placeholder="Buscar por  clientes" oninput="busca()">
+                 <div class="container">
+              <table class="table">
+                <thead>
+                <tr>
+                    <th id="espaco">*</th>
+                    <th scope="col" style="font-size: 1.5rem; width: 15%;">Nome</th>
+                    <th scope="col" style="font-size: 1.5rem;">Telefone</th>
+                    <th scope="col" style="font-size: 1.5rem;">Endereço</th>
+                    <th scope="col" style="font-size: 1.5rem;">Serviço</th>
+                    <th scope="col" style="font-size: 1.5rem;">Status</th>
+                    <th scope="col" style="font-size: 1.5rem;">Data do Pedido</th>
+                    <th scope="col" style="font-size: 1.5rem;">Data da Entrega</th>
+                    <th scope="col" style="font-size: 1.5rem;">Valor</th>
+                    <th scope="col" style="font-size: 1.5rem;"></th>
+                </tr>
+                   
+                    
+                
+                </tr>
+            </thead>
+            <tbody class="campos-tabela">
+            </tbody>
+               
+              </table>
+            </div>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+    fetchRegistros();
+});
+
+function fetchRegistros() {
+    fetch('http://localhost:8080/registros')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Erro ao buscar os registros");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const tabela = document.querySelector(".table tbody");
+            tabela.innerHTML = ""; 
+
+            data.forEach(registro => {
+                const linha = document.createElement("tr");
+                linha.id = `registro-${registro.id}`;
+
+                linha.innerHTML = `
+                    <td class="td-icones">
+                        <i class="fa-solid fa-pen-to-square" id="editar" onclick="editar(${registro.id}, '${registro.nome}', '${registro.telefone}', '${registro.endereco}', '${registro.servico}', '${registro.status}', '${registro.data_pedido}', '${registro.data_entrega}', '${registro.valor}')"></i> 
+                        <i class="fa-solid fa-trash" id="delete" onclick="excluirRegistro(${registro.id})"></i>
+                        <i class="fa-solid fa-check" id="confirm" onclick="confirmarEntrega(${registro.id})"></i>
+                    </td>
+                    <td>${registro.nome}</td>
+                    <td>${registro.telefone}</td>
+                    <td>${registro.endereco}</td>
+                    <td>${registro.servico}</td>
+                    <td class="no-hover">
+                        <span class="status-tag ${registro.status === 'FINALIZADO' ? 'completed' : 'pending'}">
+                            ${registro.status === 'FINALIZADO' ? 'FINALIZADO' : 'PENDENTE'}
+                        </span>
+                    </td>
+                        <td>${formatDate(registro.data_pedido)}</td>
+                        <td>${formatDate(registro.data_entrega)}</td>
+                        <td>${parseFloat(registro.valor).toFixed(2)}</td>
+                        <td><i class="fa-solid fa-file-pdf" id= "donwloadPdf" onclick= "downloadPdf(${registro.id})"></i></td>
+                `;
+                
+                tabela.appendChild(linha);
+            });
+        })
+        .catch(error => console.error("Erro:", error));
+}
+async function confirmarEntrega(id, nome, servico, data_entrega) {
+    if (!data_entrega || data_entrega === null || data_entrega === "") {
+        Swal.fire({
+            title: 'Confirmar Entrega',
+            text: `Deseja realmente finalizar o serviço de "${nome}"?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#007bff',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sim, finalizar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await finalizarServico(id);
+            }
+        });
+    } 
+}
+
+async function finalizarServico(id) {
+    try {
+        const response = await fetch(`http://localhost:8080/registros/${id}/finalizar`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Serviço Finalizado!',
+                text: 'O serviço foi finalizado com sucesso.',
+                confirmButtonColor: '#007bff'
+            });
+            
+        } else {
+            throw new Error('Erro ao finalizar o serviço.');
+        }
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Erro',
+            text: `Não foi possível finalizar o serviço. ${error.message}`,
+            confirmButtonColor: '#007bff'
+        });
+    }
+}
+
+function formatDate(dateString) {
+    if (!dateString) {
+        return '';
+    }
+    const [year, month, day] = dateString.split('-');
+    return `${day}/${month}/${year}`;
+}
+
+      
+
+
+function excluirRegistro(id) {
+    Swal.fire({
+        title: 'Tem certeza?',
+        text: "Você não poderá reverter esta ação!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sim, excluir!',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch(`http://localhost:8080/registros/${id}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                console.log(response)
+                console.log(id)
+                if (response.ok) {
+                    Swal.fire(
+                        'Excluído!',
+                        'O registros foi excluído com sucesso.',
+                        'success'
+                    );
+                    document.getElementById(`registro-${id}`).remove();
+                } else {
+                    Swal.fire(
+                        'Erro!',
+                        'Houve um problema ao excluir o registros.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                console.error("Erro:", error);
+                Swal.fire(
+                    'Erro!',
+                    'Não foi possível concluir a operação.',
+                    'error'
+                );
+            });
+        }
+    });
+}
+const valoresOriginais = {};
+
+function editar(id, nome, telefone, endereco, servico, status, data_pedido, data_entrega, valor) {
+    const linha = document.getElementById(`registro-${id}`);
+    
+    // Armazena os valores originais antes de editar
+    valoresOriginais[id] = {
+        nome,
+        telefone,
+        endereco,
+        servico,
+        status,
+        data_pedido,
+        data_entrega,
+        valor
+    };
+
+    // Substitui a linha por inputs para edição
+    linha.innerHTML = `
+        <td class="td-icones">
+            <i class="fa-solid fa-save" onclick="atualizarRegistro(${id})"></i> 
+            <i class="fa-solid fa-undo" onclick="desfazerEdicao(${id})"></i>
+            <i class="fa-solid fa-times" onclick="cancelarEdicao(${id})"></i>
+        </td>
+        <td><input type="text" id="nome-${id}" value="${nome}"></td>
+        <td><input type="text" id="telefone-${id}" value="${telefone}"></td>
+        <td><input type="text" id="endereco-${id}" value="${endereco}"></td>
+        <td><input type="text" id="servico-${id}" value="${servico}"></td>
+        <td>
+            <select id="status-${id}">
+                <option value="FINALIZADO" ${status === "FINALIZADO" ? "selected" : ""}>FINALIZADO</option>
+                <option value="PENDENTE" ${status === "PENDENTE" ? "selected" : ""}>PENDENTE</option>
+            </select>
+        </td>
+        <td><input type="date" id="data_pedido-${id}" value="${data_pedido}"></td>
+        <td><input type="date" id="data_entrega-${id}" value="${data_entrega}"></td>
+        <td><input type="number" id="valor-${id}" value="${valor}" step="0.01"></td>
+        
+    `;
+}
+
+   
+
+function cancelarEdicao(id) {
+    const linha = document.getElementById(`registro-${id}`);
+    const { nome, telefone, endereco, servico, status, data_pedido, data_entrega, valor } = valoresOriginais[id];
+
+    linha.innerHTML = `
+        <td class="td-icones">
+            <i class="fa-solid fa-pen-to-square" id="editar" onclick="editar(${id}, '${nome}', '${telefone}', '${endereco}', '${servico}', '${status}', '${data_pedido}', '${data_entrega}', '${valor}')"></i> 
+            <i class="fa-solid fa-trash" id="delete" onclick="excluirRegistro(${id})"></i>
+            <i class="fa-solid fa-check" id="confirm" onclick="confirmarEntrega(${id})"></i>
+        </td>
+        
+        
+
+        <td>${nome}</td>
+        <td>${telefone}</td>
+        <td>${endereco}</td>
+        <td>${servico}</td>
+        <td>
+            <span class="status-tag ${status === 'FINALIZADO' ? 'completed' : 'pending'}">
+                ${status === 'FINALIZADO' ? 'FINALIZADO' : 'PENDENTE'}
+            </span>
+        </td>
+        <td>${data_pedido}</td>
+        <td>${data_entrega}</td>
+        <td>${valor}</td>
+        <td><i class="fa-solid fa-file-pdf"></i></td>
+    `;
+}
+
+
+function desfazerEdicao(id) {
+    const { nome, telefone, endereco, servico, status, data_pedido, data_entrega, valor } = valoresOriginais[id];
+    editar(id, nome, telefone, endereco, servico, status, data_pedido, data_entrega, valor);
+}
+
+
+const notyf = new Notyf();
+
+function atualizarRegistro(id) {
+    const nome = document.getElementById(`nome-${id}`).value;
+    const telefone = document.getElementById(`telefone-${id}`).value;
+    const endereco = document.getElementById(`endereco-${id}`).value;
+    const servico = document.getElementById(`servico-${id}`).value;
+    const status = document.getElementById(`status-${id}`).value;
+    const data_pedido = document.getElementById(`data_pedido-${id}`).value;
+    const data_entrega = document.getElementById(`data_entrega-${id}`).value;
+    const valor = parseFloat(document.getElementById(`valor-${id}`).value);
+
+    const atualizacao = {
+        nome: nome,
+        telefone: telefone,
+        endereco: endereco,
+        servico: servico,
+        status: status,
+        data_pedido: data_pedido,
+        data_entrega: data_entrega,
+        valor: valor
+    };
+    
+   return fetch(`http://localhost:8080/registros/${id}`,{
+    method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(atualizacao)
+   })
+   .then(response => {
+        if (response.ok) {
+            notyf.success("Registro de  atualizado com sucesso!");
+            fetchRegistros(); 
+        } else {
+            notyf.error("Erro ao atualizar o registro ");
+        }
+    })
+    .catch(error => {
+        notyf.error("Erro ao processar a requisição.");
+        console.error("Erro:", error);
+    });
+}
+
+    document.addEventListener('DOMContentLoaded', fetchRegistros); 
+
+
+
+document.getElementById('searchInput').addEventListener('input', function () {
+
+           const searchTerm = this.value.toLowerCase();
+           const rows = document.querySelectorAll('.campos-tabela tr');  
+           rows.forEach(row => {
+               const cells = row.getElementsByTagName('td');
+               let rowContainsSearchTerm = false;
+
+               for (let i = 0; i < cells.length; i++) {
+                   const cellText = cells[i].textContent.toLowerCase();
+                   if (cellText.includes(searchTerm)) {
+                       rowContainsSearchTerm = true;
+                       break;
+                   }
+                 
+               }
+             
+
+               row.style.display = rowContainsSearchTerm ? '' : 'none';
+           });
+       });
+
+       function downloadPdf(id) {
+    const endpoint = `http://localhost:8080/pdf/${id}`;
+
+    fetch(endpoint, {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/pdf'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro ao gerar PDF: ${response.statusText}`);
+        }
+        return response.blob(); // Converte a resposta para Blob
+    })
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob); // Cria uma URL temporária para o Blob
+        const a = document.createElement('a'); // Cria um link para download
+        a.href = url;
+        a.download = `documento_${id}.pdf`; // Nome do arquivo para download
+        document.body.appendChild(a); // Adiciona o link ao DOM
+        a.click(); // Simula o clique no link
+        document.body.removeChild(a); // Remove o link do DOM
+        window.URL.revokeObjectURL(url); // Revoga a URL temporária
+    })
+    .catch(error => {
+        console.error('Erro ao processar o PDF:', error);
+        alert('Não foi possível gerar o PDF. Tente novamente mais tarde.');
+    });
+}
+
+
+    </script>
+    
+</body>
+</html> 
