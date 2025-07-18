@@ -1,0 +1,5 @@
+package com.api.ady.controller;
+
+public class AutenticacaoController {
+
+}

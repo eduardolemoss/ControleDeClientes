@@ -3,6 +3,8 @@
 	<item key="hasShownOverlayPopupBefore" value="true"/>
 	<item key="replaceBarOpen" value="false"/>
 	<list key="searchhistory">
+		<item value="login"/>
+		<item value="feito"/>
 		<item value="livro"/>
 	</list>
 </section>

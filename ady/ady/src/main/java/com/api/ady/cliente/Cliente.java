@@ -1,5 +1,7 @@
 package com.api.ady.cliente;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Table(name = "Cliente")
 @Entity(name = "Cliente")
@@ -39,9 +42,12 @@ private String telefone;
 private String endereco;
 private String servico;
 private String status;
-private String data_pedido;
-private String data_entrega;
-private String valor;
+@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy")  
+private LocalDate data_pedido;
+
+@JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy") 
+private LocalDate data_entrega;private Float valor;
+
 
 
 
