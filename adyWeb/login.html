@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <h1>Login Ady Vidros</h1>
+<div class="container">
+    <form onsubmit="login(event)">
+<label for="">login</label>
+<input type="text" id="login">
+<label for="">Senha</label>
+<input type="text" id="senha">
+<button type="submit">Entrar</button>
+</form>
+
+<script>
+
+    async function login(){
+        
+
+        const loginData = {
+            login: document.getElementById("login").value,
+            senha: document.getElementById("senha").value
+        };
+        try{
+            const response = await fetch("http://localhost:8080/auth",{
+                method: "POST",
+                headers:{
+                    "content-Type": "application/json"
+                },
+                body: JSON.stringify(loginData)
+            });
+            const data = await response.json();
+
+            if(response.ok){
+                localStorage.setItem("token", data.token);
+                alert("Login realizado com sucesso!");
+                window.location.href = "Cliente.html";
+            }else{
+                alert("Usuário ou senha inválidos!");
+            }
+        }catch(error){
+            console.error("Erro ao fazer login", error);
+            alert("Erro ao conectar com o servidor!");
+        }
+    }
+
+    async function carregarDados() {
+        const token = localStorage;getItem("token");
+
+        if(!token){
+            alert("Você precisa estar logado!");
+            window.location.href = "login.html";
+            return;
+        }
+        try{
+            const response = await fetch("http://localhost:8080/protected-route",{
+                method: "GET",
+                headers: {
+                    "Authorization": "Bearer " + token
+                }
+            
+        });
+        
+
+                if(response.ok){
+                    const data = await response.json();
+                    console.log("Dados carregados:", data);
+
+                }else {
+                    alert("Acesso negado!")
+                    window.location.href = "login.html";
+                }
+            }catch(error){
+                    console.error("Erro ao carregar dados:", error);
+
+                }
+        }
+    
+</script>
+</div>
+</body>
+</html>

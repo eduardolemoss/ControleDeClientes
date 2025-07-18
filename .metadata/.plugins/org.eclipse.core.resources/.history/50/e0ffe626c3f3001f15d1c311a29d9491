@@ -1,0 +1,32 @@
+package com.api.ady.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+import com.api.ady.seguranca.TokenService;
+
+public class AutenticacaoController {
+private final AuthenticationManager authenticationManager;
+private final TokenService tokenService;
+
+public AutenticacaoController(AuthenticationManager authenticationManager, TokenService tokenService) {
+	this.authenticationManager = authenticationManager;
+	this.tokenService = tokenService;
+}
+@PostMapping 
+public ResponseEntity<?> autenticar(@RequestBody Login credenciais){
+UsernamePasswordAuthenticationToken dadosLogin = new UsernamePasswordAuthenticationToken(credenciais.getLogin(), credenciais.getSenha());
+try {
+	Authentication authentication = authenticationManager.authenticate(dadosLogin);
+	String token = tokenService.gerarToken(authentication.getName());
+			return ResponseEntity.ok(new token(token, "Bearer"));
+			}catch(Exception e) {
+				return ResponseEntity.badRequest().body("Credenciais inválidas");
+			}
+}
+}
+

@@ -1,5 +1,0 @@
-package com.api.cliente;
-
-public record DadosCadastroCliente(String nome,String telefone, String endereco, String servico, String status, String data_pedido, String data_entrega, String valor) {
-
-}

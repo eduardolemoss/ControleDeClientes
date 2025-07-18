@@ -1,5 +1,0 @@
-package com.api.controller;
-
-public interface ClienteRepository {
-
-}

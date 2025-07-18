@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biblioteca</title>
+    <title>AdyVidrosSistemas</title>
     <link rel="stylesheet" href="index.css">
     <script src="https://kit.fontawesome.com/0008a4338f.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -99,8 +99,8 @@ function fetchRegistros() {
                             ${registro.status === 'FINALIZADO' ? 'FINALIZADO' : 'PENDENTE'}
                         </span>
                     </td>
-                        <td>${formatDate(registro.data_pedido)}</td>
-                        <td>${formatDate(registro.data_entrega)}</td>
+                        <td>${registro.data_pedido}</td>
+                        <td>${registro.data_entrega}</td>
                         <td>${parseFloat(registro.valor).toFixed(2)}</td>
                         <td><i class="fa-solid fa-file-pdf" id= "donwloadPdf" onclick= "downloadPdf(${registro.id})"></i></td>
                 `;
@@ -113,13 +113,13 @@ function fetchRegistros() {
 async function confirmarEntrega(id, nome, servico, data_entrega) {
     if (!data_entrega || data_entrega === null || data_entrega === "") {
         Swal.fire({
-            title: 'Confirmar Entrega',
+            title: 'Confirmar Entrega ',
             text: `Deseja realmente finalizar o serviço de "${nome}"?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#007bff',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sim, finalizar',
+            cancelButtonColor: '#d33', 
+            confirmButtonText: 'Sim, finalizar ',
             cancelButtonText: 'Cancelar'
         }).then(async (result) => {
             if (result.isConfirmed) {

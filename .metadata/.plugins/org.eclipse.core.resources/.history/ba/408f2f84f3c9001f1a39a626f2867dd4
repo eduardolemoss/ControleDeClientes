@@ -1,5 +1,0 @@
-package com.api.servico;
-
-public record dadosAltercaoServico() {
-
-}
